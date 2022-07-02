@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>PigApp</title>
+    <style>
+      ul {
+        list-style: none;
+      }
+    </style>
+    <meta thhp-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://www.gstatic.com/firebasejs/6.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.6.1/firebase-database.js"></script>
+    <script>
+      var firebaseConfig = {
+        apiKey: "AIzaSyBuCjz6kFpgAUSHCkzeHOIWVio-gKCIViA",
+        authDomain: "pigapp-b9f71.firebaseapp.com",
+        databaseURL: "https://pigapp-b9f71-default-rtdb.firebaseio.com",
+        projectId: "pigapp-b9f71",
+        storageBucket: "pigapp-b9f71.appspot.com",
+        messagingSenderId: "63738696162",
+        appId: "1:63738696162:web:1540781b7b7751b99369bb",
+        measurementId: "G-3VPEM1EDGE",
+      };
+      firebase.initializeApp(firebaseConfig);
+      var myName = prompt("Enter your name");
+    </script>
+    <script>
+      function sendMessage() {
+        var message = document.getElementById("message").value;
+        firebase.database().ref("messages").push().set({
+          sender: myName,
+          message: message,
+        });
+        return false;
+      }
+      firebase
+        .database()
+        .ref("messages")
+        .on("child_added", function (snapshot) {
+          var html = "";
+          html += "<li id='message-" + snapshot.key + "'>";
+          if (snapshot.val().sender == myName) {
+            html +=
+              "<button data-id='" +
+              snapshot.key +
+              "' onclick='deleteMessage(this);'>";
+            html += "Delete";
+            html += "</button>";
+          }
+          html += snapshot.val().sender + ": " + snapshot.val().message;
+          html += "</li>";
+          document.getElementById("messages").innerHTML += html;
+        });
+      function deleteMessage(self) {
+        var messageId = self.getAttribute("data-id");
+        firebase.database().ref("messages").child(messageId).remove();
+      }
+      firebase
+        .database()
+        .ref("messages")
+        .on("child_removed", function (snapshot) {
+          document.getElementById("message-" + snapshot.key).innerHTML =
+            "This message has been removed";
+        });
+    </script>
+  </head>
+  <body>
+    <center>
+      <h1>PigApp</h1>
+      <h3>اكتب رسالة وابعتها بالحب كده</h3>
+    </center>
+    <strong><ul id="messages"></ul></strong>
+    <center>
+      <form onsubmit="return sendMessage();">
+        <input id="message" placeholder="Enter message" autocomplete="off" />
+        <input type="submit" />
+      </form>
+    </center>
+  </body>
+</html>
